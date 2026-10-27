@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rutas y Roles en Paseo App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: guía de clase de una columna con índice lateral fijo en escritorio; bloques numerados = pasos reales en orden */
+:root {
+  --bg: #f5f8f9;
+  --surface: #ffffff;
+  --fg: #172a31;
+  --muted: #536b74;
+  --line: #d6e1e5;
+  --brand: #1f6f8b;
+  --brand-soft: #e3f0f4;
+  --accent: #b9761a;
+  --accent-soft: #fbf0de;
+  --ok: #2c7a4b;
+  --ok-soft: #e2f3e8;
+  --bad: #b43d33;
+  --bad-soft: #f9e5e3;
+  --code-bg: #10252d;
+  --code-fg: #dbe8ec;
+  --code-key: #f2b65c;
+  --code-str: #9fd8a8;
+  --code-com: #7d979f;
+  --code-tag: #7cc6e0;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1a1f; --surface: #13252c; --fg: #e3edf0; --muted: #94adb5; --line: #24404a;
+    --brand: #5fb3d0; --brand-soft: #173843; --accent: #f0b45e; --accent-soft: #3a2c16;
+    --ok: #6fcf94; --ok-soft: #15362a; --bad: #f08a80; --bad-soft: #3d1c19;
+    --code-bg: #08141a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1a1f; --surface: #13252c; --fg: #e3edf0; --muted: #94adb5; --line: #24404a;
+  --brand: #5fb3d0; --brand-soft: #173843; --accent: #f0b45e; --accent-soft: #3a2c16;
+  --ok: #6fcf94; --ok-soft: #15362a; --bad: #f08a80; --bad-soft: #3d1c19;
+  --code-bg: #08141a; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-inline: 16px; padding-block: 0 64px;
+}
+a { color: var(--brand); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.marco { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 880px) { .marco { grid-template-columns: minmax(0, 1fr); gap: 0; } .indice { display: none; } }
+
+.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; padding-top: 24px; font-size: 14px; }
+.indice p { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.indice ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: idx; }
+.indice a { display: block; padding: 4px 10px; border-radius: 6px; color: var(--fg); text-decoration: none; border-left: 2px solid transparent; }
+.indice a:hover { background: var(--brand-soft); border-left-color: var(--brand); }
+
+main { min-width: 0; }
+
+header.portada { padding-block: 48px 32px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.ceja { font-family: var(--font-mono); font-size: 13px; color: var(--brand); letter-spacing: .04em; margin: 0 0 12px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 6vw, 54px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 16px; text-wrap: balance; }
+h1 span { color: var(--brand); }
+.entradilla { font-size: 19px; color: var(--muted); max-width: 62ch; margin: 0; }
+
+section { padding-block: 40px 8px; scroll-margin-top: 16px; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -.01em; margin: 0 0 12px; text-wrap: balance; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h2 .min { font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; letter-spacing: 0; }
+h3 { font-family: var(--font-display); font-weight: 700; font-size: 20px; margin: 28px 0 8px; }
+p, li { max-width: 68ch; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--brand-soft); color: var(--fg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* Agenda */
+.agenda { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; margin-top: 20px; }
+.agenda div { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 16px; padding: 14px 18px; border-top: 1px solid var(--line); }
+.agenda div:first-child { border-top: 0; }
+.agenda b { font-family: var(--font-mono); font-weight: 600; color: var(--brand); font-variant-numeric: tabular-nums; }
+.agenda span { color: var(--muted); }
+.agenda strong { color: var(--fg); }
+
+/* Tabla de rutas */
+.tabla-env { overflow-x: auto; margin-top: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 15px; }
+th, td { text-align: left; padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+thead th { border-top: 0; font-family: var(--font-display); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+td.si { color: var(--ok); font-weight: 700; }
+td.no { color: var(--bad); font-weight: 700; }
+.chip { display: inline-block; font-family: var(--font-mono); font-size: 12px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.chip.pub { background: var(--ok-soft); color: var(--ok); }
+.chip.priv { background: var(--brand-soft); color: var(--brand); }
+.chip.rol { background: var(--accent-soft); color: var(--accent); }
+
+/* Simulador */
+.simulador { margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 16px; }
+.controles { display: flex; flex-wrap: wrap; gap: 16px; }
+.grupo { display: grid; gap: 6px; min-width: 0; }
+.grupo > span { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.opciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.opciones button { font: inherit; font-size: 14px; font-family: var(--font-mono); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+.opciones button[aria-pressed="true"] { background: var(--brand); color: var(--surface); border-color: var(--brand); }
+.resultado { border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }
+.resultado.ok { background: var(--ok-soft); }
+.resultado.redir { background: var(--bad-soft); }
+.resultado strong { font-family: var(--font-display); font-size: 18px; }
+.resultado.ok strong { color: var(--ok); }
+.resultado.redir strong { color: var(--bad); }
+.traza { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+
+/* Pasos */
+.paso { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; margin-top: 32px; }
+.paso .num { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: var(--surface); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.paso h3 { margin-top: 6px; }
+.archivo { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+
+pre.codigo { background: var(--code-bg); color: var(--code-fg); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 12px 0 0; }
+pre.codigo code { background: none; padding: 0; color: inherit; font-size: inherit; overflow-wrap: normal; }
+.hljs-keyword, .hljs-built_in, .hljs-literal { color: var(--code-key); }
+.hljs-string, .hljs-attr { color: var(--code-str); }
+.hljs-comment { color: var(--code-com); font-style: italic; }
+.hljs-name, .hljs-tag, .hljs-title { color: var(--code-tag); }
+.hljs-meta { color: var(--code-com); }
+
+.nota { border-radius: 10px; padding: 14px 18px; margin-top: 16px; display: grid; gap: 4px; }
+.nota b { font-family: var(--font-display); }
+.nota.info { background: var(--brand-soft); }
+.nota.alerta { background: var(--accent-soft); }
+.nota.peligro { background: var(--bad-soft); }
+.nota p { margin: 0; }
+
+.diagrama { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 20px; overflow-x: auto; }
+.diagrama svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.diagrama text { font-family: var(--font-body); font-size: 14px; fill: var(--fg); }
+.diagrama .caja { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.diagrama .rombo { fill: var(--brand-soft); stroke: var(--brand); stroke-width: 1.5; }
+.diagrama .fin-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.5; }
+.diagrama .fin-no { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.5; }
+.diagrama .flecha { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.diagrama .punta { fill: var(--muted); }
+.diagrama .etq { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+
+.tag { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 1px 7px; border-radius: 4px; margin-left: 4px; }
+.tag.nuevo { background: var(--ok-soft); color: var(--ok); }
+.tag.mod { background: var(--accent-soft); color: var(--accent); }
+.tag.ya { background: var(--brand-soft); color: var(--brand); }
+.explica { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.explica b { font-family: var(--font-display); color: var(--brand); }
+.prueba { background: var(--ok-soft); border-radius: 10px; padding: 12px 16px; margin-top: 12px; display: grid; gap: 4px; }
+.prueba b { font-family: var(--font-display); color: var(--ok); }
+.prueba b::before { content: "✓ "; }
+.prueba p { margin: 0; }
+.como-usar { margin-top: 12px; font-size: 16px; }
+ul.lista-check { padding-left: 0; list-style: none; display: grid; gap: 10px; }
+ul.lista-check li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; }
+ul.lista-check li::before { content: "☐"; color: var(--brand); font-size: 18px; line-height: 1.4; }
+ol.pruebas { padding-left: 22px; display: grid; gap: 8px; }
+ol.pruebas li::marker { font-family: var(--font-mono); color: var(--brand); font-weight: 600; }
+
+footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<div class="marco">
+  <nav class="indice" aria-label="Contenido">
+    <p>Contenido</p>
+    <ol>
+      <li><a href="#agenda">Agenda</a></li>
+      <li><a href="#concepto">El concepto</a></li>
+      <li><a href="#flujo">El flujo</a></li>
+      <li><a href="#antes">Antes de clase</a></li>
+      <li><a href="#bloque-sesion">Pasos 0–2 · Sesión</a></li>
+      <li><a href="#bloque-login">Pasos 3–5 · Login</a></li>
+      <li><a href="#bloque-guardias">Pasos 6–8 · Guardias</a></li>
+      <li><a href="#bloque-menu">Paso 9 · Menú</a></li>
+      <li><a href="#backend">Seguridad real</a></li>
+      <li><a href="#pruebas">Cierre</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="portada">
+      <p class="ceja">Guía del profesor · Paseo App · React Router 7 · 90 min</p>
+      <h1>Rutas públicas, privadas <span>y por rol</span></h1>
+      <p class="entradilla">Un administrador crea espacios y reservas. Un residente solo reserva. Quien no ha iniciado sesión solo ve el registro y el login. Hoy construimos esa regla en el frontend de Paseo App.</p>
+      <p class="entradilla como-usar">Los pasos van en el orden en que se escriben en clase. Cada uno dice qué archivo tocar, qué explicar y qué probar antes de seguir.</p>
+    </header>
+
+    <section id="agenda">
+      <h2>Agenda</h2>
+      <div class="agenda">
+        <div><b>15 min</b><span><strong>Concepto.</strong> Tabla de rutas, simulador y diagrama del flujo. Todavía no se escribe código.</span></div>
+        <div><b>20 min</b><span><strong>Pasos 0–2 · Sesión.</strong> Revisar la conexión al API, crear <code>ContextoSesion</code> y envolver la app.</span></div>
+        <div><b>15 min</b><span><strong>Pasos 3–5 · Login.</strong> El servicio, la página <code>/login</code> y el registro que deja la sesión abierta.</span></div>
+        <div><b>25 min</b><span><strong>Pasos 6–8 · Guardias.</strong> <code>RutaPrivada</code>, <code>RutaPorRol</code> y el árbol de rutas, armado en dos momentos.</span></div>
+        <div><b>15 min</b><span><strong>Paso 9 y cierre.</strong> Menú según el rol, la demostración de <code>localStorage</code> y por qué el backend debe validar.</span></div>
+      </div>
+    </section>
+
+    <section id="concepto">
+      <h2>El concepto <span class="min">15 min</span></h2>
+      <p>Cada ruta de la app responde a una pregunta antes de mostrarse. Una <span class="chip pub">pública</span> no pregunta nada. Una <span class="chip priv">privada</span> pregunta «¿hay sesión?». Una <span class="chip rol">por rol</span> pregunta además «¿tu rol está en la lista?».</p>
+
+      <div class="tabla-env">
+        <table>
+          <thead><tr><th>Ruta</th><th>Página</th><th>Tipo</th><th>Sin sesión</th><th>USUARIO</th><th>ADMINISTRADOR</th></tr></thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>Registro</td><td><span class="chip pub">pública</span></td><td class="si">entra</td><td class="si">entra</td><td class="si">entra</td></tr>
+            <tr><td><code>/login</code></td><td>Iniciar sesión</td><td><span class="chip pub">pública</span></td><td class="si">entra</td><td class="no">→ /home</td><td class="no">→ /home</td></tr>
+            <tr><td><code>/home</code></td><td>Inicio</td><td><span class="chip priv">privada</span></td><td class="no">→ /login</td><td class="si">entra</td><td class="si">entra</td></tr>
+            <tr><td><code>/reservas</code></td><td>Crear reserva</td><td><span class="chip priv">privada</span></td><td class="no">→ /login</td><td class="si">entra</td><td class="si">entra</td></tr>
+            <tr><td><code>/listaespacios</code></td><td>Ver espacios</td><td><span class="chip priv">privada</span></td><td class="no">→ /login</td><td class="si">entra</td><td class="si">entra</td></tr>
+            <tr><td><code>/espacios</code></td><td>Crear espacio</td><td><span class="chip rol">solo admin</span></td><td class="no">→ /login</td><td class="no">→ /home</td><td class="si">entra</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Simulador</h3>
+      <p>Elige quién eres y a qué ruta intentas entrar. Es la misma lógica que vamos a programar.</p>
+      <div class="simulador">
+        <div class="controles">
+          <div class="grupo">
+            <span>Sesión</span>
+            <div class="opciones" id="op-sesion">
+              <button type="button" id="s-ninguna" data-v="ninguna" aria-pressed="false">sin sesión</button>
+              <button type="button" id="s-usuario" data-v="USUARIO" aria-pressed="true">USUARIO</button>
+              <button type="button" id="s-admin" data-v="ADMINISTRADOR" aria-pressed="false">ADMINISTRADOR</button>
+            </div>
+          </div>
+          <div class="grupo">
+            <span>Ruta</span>
+            <div class="opciones" id="op-ruta">
+              <button type="button" id="r-raiz" data-v="/" aria-pressed="false">/</button>
+              <button type="button" id="r-login" data-v="/login" aria-pressed="false">/login</button>
+              <button type="button" id="r-home" data-v="/home" aria-pressed="false">/home</button>
+              <button type="button" id="r-reservas" data-v="/reservas" aria-pressed="false">/reservas</button>
+              <button type="button" id="r-espacios" data-v="/espacios" aria-pressed="true">/espacios</button>
+            </div>
+          </div>
+        </div>
+        <div class="resultado redir" id="resultado" aria-live="polite">
+          <strong>Redirige a /home</strong>
+          <ol class="traza"><li>RutaPrivada: hay sesión ✓</li><li>RutaPorRol: USUARIO no está en [ADMINISTRADOR] ✗</li></ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="flujo">
+      <h2>El flujo</h2>
+      <p>Las guardias se anidan. Primero <code>RutaPrivada</code> revisa la sesión; solo si pasa, <code>RutaPorRol</code> revisa el rol. Si todo pasa, <code>&lt;Outlet /&gt;</code> pinta la página pedida.</p>
+      <div class="diagrama">
+        <svg viewBox="0 0 720 300" width="720" role="img" aria-label="Diagrama: el usuario pide una ruta, RutaPrivada revisa si hay sesión, RutaPorRol revisa el rol y al final se muestra la página">
+          <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="punta" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+          <rect class="caja" x="10" y="40" width="130" height="56" rx="10"/>
+          <text x="75" y="64" text-anchor="middle">Pide</text>
+          <text x="75" y="84" text-anchor="middle" font-family="JetBrains Mono, monospace">/espacios</text>
+
+          <path class="rombo" d="M250,18 L340,68 L250,118 L160,68 Z"/>
+          <text x="250" y="64" text-anchor="middle">¿Hay</text>
+          <text x="250" y="82" text-anchor="middle">sesión?</text>
+
+          <path class="rombo" d="M470,18 L560,68 L470,118 L380,68 Z"/>
+          <text x="470" y="64" text-anchor="middle">¿Rol</text>
+          <text x="470" y="82" text-anchor="middle">permitido?</text>
+
+          <rect class="fin-ok" x="590" y="40" width="120" height="56" rx="10"/>
+          <text x="650" y="64" text-anchor="middle">&lt;Outlet /&gt;</text>
+          <text x="650" y="84" text-anchor="middle">muestra página</text>
+
+          <rect class="fin-no" x="180" y="210" width="140" height="56" rx="10"/>
+          <text x="250" y="234" text-anchor="middle">&lt;Navigate&gt;</text>
+          <text x="250" y="254" text-anchor="middle" font-family="JetBrains Mono, monospace">/login</text>
+
+          <rect class="fin-no" x="400" y="210" width="140" height="56" rx="10"/>
+          <text x="470" y="234" text-anchor="middle">&lt;Navigate&gt;</text>
+          <text x="470" y="254" text-anchor="middle" font-family="JetBrains Mono, monospace">/home</text>
+
+          <line class="flecha" x1="140" y1="68" x2="158" y2="68" marker-end="url(#m)"/>
+          <line class="flecha" x1="340" y1="68" x2="378" y2="68" marker-end="url(#m)"/>
+          <text class="etq" x="359" y="58" text-anchor="middle">sí</text>
+          <line class="flecha" x1="560" y1="68" x2="588" y2="68" marker-end="url(#m)"/>
+          <text class="etq" x="574" y="58" text-anchor="middle">sí</text>
+          <line class="flecha" x1="250" y1="118" x2="250" y2="208" marker-end="url(#m)"/>
+          <text class="etq" x="262" y="168">no</text>
+          <line class="flecha" x1="470" y1="118" x2="470" y2="208" marker-end="url(#m)"/>
+          <text class="etq" x="482" y="168">no</text>
+
+          <text class="etq" x="250" y="12" text-anchor="middle">RutaPrivada</text>
+          <text class="etq" x="470" y="12" text-anchor="middle">RutaPorRol</text>
+        </svg>
+      </div>
+    </section>
+
+    <section id="antes">
+      <h2>Antes de clase</h2>
+      <ul class="lista-check">
+        <li>Backend <code>paseoGlobant</code> corriendo en el puerto 8080. Hoy no compila porque faltan <code>EspacioServicio</code> y <code>ReservaServicio</code>: créalos o comenta esos dos controladores.</li>
+        <li>En <code>application.properties</code>: <code>server.error.include-message=always</code>, para que el front muestre los mensajes del API.</li>
+        <li>Frontend en el punto de partida: con <code>axios</code>, <code>clienteApi.js</code> y el registro corregido, pero sin los archivos de sesión, login ni guardias.</li>
+        <li>Base de datos sin usuarios, o borra los de prueba, para registrar en vivo un admin y un residente.</li>
+      </ul>
+    </section>
+
+    <section id="bloque-sesion">
+      <h2>Bloque 1 · La sesión <span class="min">20 min</span></h2>
+
+      <div class="paso"><div class="num">0</div><div>
+        <h3>Revisar la conexión al API</h3>
+        <p class="archivo">src/services/clienteApi.js <span class="tag ya">ya existe</span></p>
+        <p class="explica"><b>Qué explicar:</b> todos los servicios usan este cliente. Si la URL está mal, nada de lo que sigue funciona.</p>
+        <pre class="codigo"><code class="language-javascript">import axios from 'axios'
+
+// Cliente de axios con la URL base del API
+// La URL se puede cambiar con la variable VITE_API_URL en un archivo .env
+export const clienteApi = axios.create({
+    baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/paseoapi/v1',
+    headers: { 'Content-Type': 'application/json' },
+})</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Registra un usuario en <code>/</code> y verifica en la consola H2 (<code>localhost:8080/h2-console</code>) que quedó guardado.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">1</div><div>
+        <h3>Crear el contexto de sesión</h3>
+        <p class="archivo">src/contexto/ContextoSesion.jsx <span class="tag nuevo">nuevo</span></p>
+        <p class="explica"><b>Qué explicar:</b> el login escribe la sesión, las guardias la leen y el menú la usa. En vez de pasar props por toda la app, la ponemos en un contexto. <code>localStorage</code> evita perderla al recargar. <code>estaLogueado</code> y <code>esAdministrador</code> son atajos para no repetir la comparación en cada componente.</p>
+        <pre class="codigo"><code class="language-javascript">import { createContext, useContext, useState } from 'react'
+
+// 1. Creamos el contexto: una "caja" que cualquier componente puede abrir
+const ContextoSesion = createContext(null)
+
+const CLAVE = 'sesionPaseoApp'
+
+// Lee la sesion guardada en el navegador (si recargo la pagina no se pierde)
+function leerSesionGuardada() {
+    try {
+        const texto = localStorage.getItem(CLAVE)
+        return texto ? JSON.parse(texto) : null
+    } catch {
+        return null
+    }
+}
+
+// 2. El proveedor envuelve la app y guarda quien esta logueado
+export function ProveedorSesion({ children }) {
+
+    const [usuario, setUsuario] = useState(leerSesionGuardada)
+
+    function guardarSesion(usuarioLogueado) {
+        localStorage.setItem(CLAVE, JSON.stringify(usuarioLogueado))
+        setUsuario(usuarioLogueado)
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem(CLAVE)
+        setUsuario(null)
+    }
+
+    // Lo que compartimos con toda la aplicacion
+    const valor = {
+        usuario,
+        estaLogueado: usuario !== null,
+        esAdministrador: usuario?.rol === 'ADMINISTRADOR',
+        guardarSesion,
+        cerrarSesion,
+    }
+
+    return (
+        &lt;ContextoSesion.Provider value={valor}&gt;
+            {children}
+        &lt;/ContextoSesion.Provider&gt;
+    )
+}
+
+// 3. Hook para usar la sesion desde cualquier componente
+export function useSesion() {
+    return useContext(ContextoSesion)
+}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Todavía no hay nada visible. Solo verifica que Vite no muestre errores.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">2</div><div>
+        <h3>Envolver la app con el proveedor</h3>
+        <p class="archivo">src/App.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> solo los componentes que están dentro de <code>&lt;ProveedorSesion&gt;</code> pueden usar <code>useSesion()</code>. Por eso va por fuera de todo.</p>
+        <pre class="codigo"><code class="language-javascript">import { ProveedorSesion } from './contexto/ContextoSesion'
+// ...los imports que ya tenías
+
+export function App() {
+  return (
+    &lt;ProveedorSesion&gt;
+      &lt;BrowserRouter&gt;
+        &lt;Routes&gt;
+          {/* ...las rutas que ya tenías, sin cambios */}
+        &lt;/Routes&gt;
+      &lt;/BrowserRouter&gt;
+    &lt;/ProveedorSesion&gt;
+  )
+}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>La app se ve y funciona exactamente igual que antes.</p></div>
+      </div></div>
+    </section>
+
+    <section id="bloque-login">
+      <h2>Bloque 2 · Iniciar sesión <span class="min">15 min</span></h2>
+
+      <div class="paso"><div class="num">3</div><div>
+        <h3>Crear el servicio de login</h3>
+        <p class="archivo">src/services/servicioAuth.js <span class="tag nuevo">nuevo</span></p>
+        <p class="explica"><b>Qué explicar:</b> el backend aún no tiene endpoint de login, así que buscamos el usuario por correo. Aislarlo en un servicio permite cambiar solo esta función cuando exista <code>POST /usuarios/login</code>. Deja claro que esto <strong>no valida la contraseña</strong>.</p>
+        <pre class="codigo"><code class="language-javascript">import { listarUsuarios } from './servicioUsuarios.js'
+
+// OJO: el backend todavia no tiene un endpoint de login.
+// Por ahora buscamos el usuario por correo en la lista de usuarios.
+// Esto NO valida la contraseña (el API no la devuelve, y esta bien que no lo haga).
+// Cuando exista POST /usuarios/login solo hay que cambiar esta funcion:
+//
+//   const respuesta = await clienteApi.post('/usuarios/login', { correo, contraseña })
+//   return respuesta.data
+//
+export async function iniciarSesion(correo, contraseña) {
+    const usuarios = await listarUsuarios()
+
+    function tieneElMismoCorreo(usuario) {
+        return usuario.correo.toLowerCase() === correo.toLowerCase()
+    }
+
+    const usuarioEncontrado = usuarios.find(tieneElMismoCorreo)
+
+    if (!usuarioEncontrado) {
+        throw new Error('Correo o contraseña incorrectos')
+    }
+
+    return usuarioEncontrado
+}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Nada visible todavía.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">4</div><div>
+        <h3>Crear la página de login y su ruta</h3>
+        <p class="archivo">src/paginas/Login.jsx <span class="tag nuevo">nuevo</span> · src/App.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> el flujo es pedir el usuario al servicio, guardarlo con <code>guardarSesion</code> y navegar. El <code>if (estaLogueado)</code> del principio es la primera «guardia» que ven: si ya hay sesión, el login no se muestra.</p>
+        <pre class="codigo"><code class="language-javascript">import { useState } from 'react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+
+import { iniciarSesion } from '../services/servicioAuth.js'
+import { useSesion } from '../contexto/ContextoSesion.jsx'
+
+import { PanelFormulario } from '../componentes/PanelFormulario'
+
+const IMAGEN = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1400&amp;q=80'
+
+export function Login() {
+  const navegar = useNavigate()
+  const { estaLogueado, guardarSesion } = useSesion()
+
+  const [datos, setDatos] = useState({ correo: '', contraseña: '' })
+  const [error, setError] = useState('')
+  const [enviando, setEnviando] = useState(false)
+
+  // Si ya hay sesion no tiene sentido ver el login
+  if (estaLogueado) {
+    return &lt;Navigate to="/home" replace /&gt;
+  }
+
+  function manejarCambio(evento) {
+    const { name, value } = evento.target
+    setDatos({ ...datos, [name]: value })
+  }
+
+  async function manejarEnvio(evento) {
+    evento.preventDefault()
+    setError('')
+    setEnviando(true)
+
+    try {
+      const usuario = await iniciarSesion(datos.correo, datos.contraseña)
+      guardarSesion(usuario)
+      navegar('/home')
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || 'No fue posible iniciar sesión')
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  return (
+    &lt;PanelFormulario
+      imagen={IMAGEN}
+      titulo="Tu unidad residencial, en un solo lugar"
+      subtitulo="Reserva zonas comunes y administra los espacios de tu conjunto en Sabaneta."
+    &gt;
+      &lt;h2 className="fw-bold mb-1"&gt;Iniciar sesión&lt;/h2&gt;
+      &lt;p className="text-muted mb-4"&gt;Ingresa para reservar o administrar espacios.&lt;/p&gt;
+
+      {error &amp;&amp; &lt;div className="alert alert-danger"&gt;{error}&lt;/div&gt;}
+
+      &lt;form onSubmit={manejarEnvio}&gt;
+        &lt;div className="mb-3"&gt;
+          &lt;label className="form-label fw-semibold"&gt;Correo&lt;/label&gt;
+          &lt;div className="input-group"&gt;
+            &lt;span className="input-group-text"&gt;&lt;i className="bi bi-envelope"&gt;&lt;/i&gt;&lt;/span&gt;
+            &lt;input
+              type="email"
+              name="correo"
+              placeholder="correo@ejemplo.com"
+              className="form-control"
+              value={datos.correo}
+              onChange={manejarCambio}
+              required
+            /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div className="mb-4"&gt;
+          &lt;label className="form-label fw-semibold"&gt;Contraseña&lt;/label&gt;
+          &lt;div className="input-group"&gt;
+            &lt;span className="input-group-text"&gt;&lt;i className="bi bi-lock"&gt;&lt;/i&gt;&lt;/span&gt;
+            &lt;input
+              type="password"
+              name="contraseña"
+              className="form-control"
+              value={datos.contraseña}
+              onChange={manejarCambio}
+              required
+            /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;button type="submit" className="btn btn-marca btn-lg w-100" disabled={enviando}&gt;
+          &lt;i className="bi bi-box-arrow-in-right me-2"&gt;&lt;/i&gt;
+          {enviando ? 'Ingresando...' : 'Ingresar'}
+        &lt;/button&gt;
+      &lt;/form&gt;
+
+      &lt;p className="text-center text-muted mt-4 mb-0"&gt;
+        ¿No tienes cuenta? &lt;Link to="/"&gt;Regístrate&lt;/Link&gt;
+      &lt;/p&gt;
+    &lt;/PanelFormulario&gt;
+  )
+}</code></pre>
+        <p>Registra la ruta de una vez para poder probarla:</p>
+        <pre class="codigo"><code class="language-javascript">import { Login } from './paginas/Login'
+
+// dentro de &lt;Routes&gt;
+&lt;Route path="/login" element={&lt;Login /&gt;} /&gt;</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Entra a <code>/login</code> con el correo del usuario registrado. Abre DevTools → Application → Local Storage: aparece <code>sesionPaseoApp</code> con el usuario y su rol. Vuelve a <code>/login</code>: te manda a <code>/home</code>. Prueba también con un correo que no existe.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">5</div><div>
+        <h3>Dejar logueado al que se registra</h3>
+        <p class="archivo">src/paginas/RegistroUsuario.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> el API devuelve el usuario creado (sin contraseña, gracias al DTO). Lo guardamos como sesión para que no tenga que loguearse después de registrarse.</p>
+        <pre class="codigo"><code class="language-javascript">import { Link, useNavigate } from 'react-router-dom'
+import { useSesion } from '../contexto/ContextoSesion.jsx'
+
+// dentro del componente
+const { guardarSesion } = useSesion()
+
+// dentro del try de manejarEnvio
+const usuarioGuardado = await guardarUsuario(usuario)
+//El API devuelve el usuario creado (sin contraseña): lo dejamos logueado
+guardarSesion(usuarioGuardado)
+navegar('/home')
+
+// debajo del &lt;/form&gt;
+&lt;p className="text-center text-muted mt-4 mb-0"&gt;
+  ¿Ya tienes cuenta? &lt;Link to="/login"&gt;Inicia sesión&lt;/Link&gt;
+&lt;/p&gt;</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Borra <code>sesionPaseoApp</code> en DevTools. Registra un usuario con rol <code>ADMINISTRADOR</code> y otro con rol <code>USUARIO</code>. Después de cada registro, la sesión aparece en <code>localStorage</code>.</p></div>
+      </div></div>
+    </section>
+
+    <section id="bloque-guardias">
+      <h2>Bloque 3 · Las guardias <span class="min">25 min</span></h2>
+      <p>Una guardia es un componente que elige entre dos salidas: <code>&lt;Navigate&gt;</code> para mandar al usuario a otro lado, o <code>&lt;Outlet /&gt;</code> para pintar la ruta hija que pidió.</p>
+
+      <div class="paso"><div class="num">6</div><div>
+        <h3>Crear RutaPrivada</h3>
+        <p class="archivo">src/rutas/RutaPrivada.jsx <span class="tag nuevo">nuevo</span></p>
+        <p class="explica"><b>Qué explicar:</b> <code>&lt;Outlet /&gt;</code> es el hueco donde React Router pinta la ruta hija. <code>replace</code> reemplaza la entrada del historial para que «atrás» no vuelva a la ruta protegida.</p>
+        <pre class="codigo"><code class="language-javascript">import { Navigate, Outlet } from 'react-router-dom'
+import { useSesion } from '../contexto/ContextoSesion.jsx'
+
+// Deja pasar solo a usuarios logueados.
+// &lt;Outlet /&gt; pinta la ruta hija que el usuario pidio.
+export function RutaPrivada() {
+    const { estaLogueado } = useSesion()
+
+    if (!estaLogueado) {
+        return &lt;Navigate to="/login" replace /&gt;
+    }
+
+    return &lt;Outlet /&gt;
+}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Nada visible todavía: la guardia existe pero ninguna ruta la usa.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">7</div><div>
+        <h3>Proteger las rutas privadas</h3>
+        <p class="archivo">src/App.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> una <code>&lt;Route&gt;</code> sin <code>path</code>, solo con <code>element</code>, es una ruta de diseño. No cambia la URL; solo envuelve a sus hijas. Todo lo que pongas dentro pasa por la guardia.</p>
+        <pre class="codigo"><code class="language-javascript">import { RutaPrivada } from './rutas/RutaPrivada'
+
+&lt;Routes&gt;
+  {/* Rutas publicas: cualquiera puede entrar */}
+  &lt;Route path="/" element={&lt;RegistroUsuario /&gt;} /&gt;
+  &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+
+  {/* Rutas privadas: solo usuarios logueados */}
+  &lt;Route element={&lt;RutaPrivada /&gt;}&gt;
+    &lt;Route path="/home" element={&lt;Home /&gt;} /&gt;
+    &lt;Route path="/reservas" element={&lt;RegistroReserva /&gt;} /&gt;
+    &lt;Route path="/listaespacios" element={&lt;ListaEspacios /&gt;} /&gt;
+    &lt;Route path="/espacios" element={&lt;RegistroEspacio /&gt;} /&gt;
+  &lt;/Route&gt;
+&lt;/Routes&gt;</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Borra <code>sesionPaseoApp</code> y escribe <code>/home</code> en la barra: te manda a <code>/login</code>. Inicia sesión y ya entras. Pregunta a la clase: ¿un USUARIO puede entrar a <code>/espacios</code>? Sí, todavía puede. Ese es el problema del siguiente paso.</p></div>
+      </div></div>
+
+      <div class="paso"><div class="num">8</div><div>
+        <h3>Crear RutaPorRol y proteger /espacios</h3>
+        <p class="archivo">src/rutas/RutaPorRol.jsx <span class="tag nuevo">nuevo</span> · src/App.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> recibe un arreglo de roles y no un solo rol, para que sirva en el futuro con combinaciones como <code>['ADMINISTRADOR', 'PORTERO']</code>. Al anidarla dentro de <code>RutaPrivada</code>, primero se revisa la sesión y después el rol. Usa el simulador de arriba para mostrar el orden.</p>
+        <pre class="codigo"><code class="language-javascript">import { Navigate, Outlet } from 'react-router-dom'
+import { useSesion } from '../contexto/ContextoSesion.jsx'
+
+// Deja pasar solo si el rol del usuario esta en la lista de roles permitidos.
+// Ejemplo: &lt;RutaPorRol rolesPermitidos={['ADMINISTRADOR']} /&gt;
+export function RutaPorRol({ rolesPermitidos }) {
+    const { usuario } = useSesion()
+
+    if (!usuario) {
+        return &lt;Navigate to="/login" replace /&gt;
+    }
+
+    if (!rolesPermitidos.includes(usuario.rol)) {
+        return &lt;Navigate to="/home" replace /&gt;
+    }
+
+    return &lt;Outlet /&gt;
+}</code></pre>
+        <p>Mueve <code>/espacios</code> dentro de una nueva guardia. Así queda <code>App.jsx</code> completo:</p>
+        <pre class="codigo"><code class="language-javascript">import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ProveedorSesion } from './contexto/ContextoSesion'
+import { RutaPrivada } from './rutas/RutaPrivada'
+import { RutaPorRol } from './rutas/RutaPorRol'
+import { RegistroUsuario } from './paginas/RegistroUsuario'
+import { Login } from './paginas/Login'
+import { Home } from './paginas/Home'
+import { RegistroEspacio } from './paginas/RegistroEspacio'
+import { RegistroReserva } from './paginas/RegistroReserva'
+import {ListaEspacios} from './paginas/ListaEspacios'
+
+export function App() {
+  return (
+    &lt;ProveedorSesion&gt;
+      &lt;BrowserRouter&gt;
+        &lt;Routes&gt;
+          {/* Rutas publicas: cualquiera puede entrar */}
+          &lt;Route path="/" element={&lt;RegistroUsuario /&gt;} /&gt;
+          &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
+
+          {/* Rutas privadas: solo usuarios logueados */}
+          &lt;Route element={&lt;RutaPrivada /&gt;}&gt;
+            &lt;Route path="/home" element={&lt;Home /&gt;} /&gt;
+            &lt;Route path="/reservas" element={&lt;RegistroReserva /&gt;} /&gt;
+            &lt;Route path="/listaespacios" element={&lt;ListaEspacios /&gt;} /&gt;
+
+            {/* Rutas por rol: solo ADMINISTRADOR */}
+            &lt;Route element={&lt;RutaPorRol rolesPermitidos={['ADMINISTRADOR']} /&gt;}&gt;
+              &lt;Route path="/espacios" element={&lt;RegistroEspacio /&gt;} /&gt;
+            &lt;/Route&gt;
+          &lt;/Route&gt;
+
+          {/* Cualquier otra ruta */}
+          &lt;Route path="*" element={&lt;Navigate to="/login" replace /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/BrowserRouter&gt;
+    &lt;/ProveedorSesion&gt;
+  )
+}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Entra como <code>USUARIO</code> y escribe <code>/espacios</code>: vuelves a <code>/home</code>. Sal, entra como <code>ADMINISTRADOR</code> y <code>/espacios</code> abre el formulario. Escribe una ruta que no existe, como <code>/xyz</code>: te manda a <code>/login</code>.</p></div>
+      </div></div>
+    </section>
+
+    <section id="bloque-menu">
+      <h2>Bloque 4 · Menú según el rol <span class="min">15 min</span></h2>
+
+      <div class="paso"><div class="num">9</div><div>
+        <h3>Ocultar lo que no puedes usar y cerrar sesión</h3>
+        <p class="archivo">src/paginas/Home.jsx <span class="tag mod">modificar</span></p>
+        <p class="explica"><b>Qué explicar:</b> si el residente ve el botón «Espacios» y al hacer clic lo devuelven a inicio, parece un error. Por eso lo ocultamos. Pero <strong>ocultar no es proteger</strong>: lo que impide entrar escribiendo la URL es la guardia, y hacen falta las dos cosas. «Salir» deja de ser un <code>Link</code> y pasa a ser un botón que borra la sesión.</p>
+        <pre class="codigo"><code class="language-javascript">import { Link, useNavigate } from 'react-router-dom'
+import { useSesion } from '../contexto/ContextoSesion.jsx'
+
+// dentro del componente
+const navegar = useNavigate()
+const { usuario, esAdministrador, cerrarSesion } = useSesion()
+
+function salir() {
+  cerrarSesion()
+  navegar('/login')
+}
+
+// en el navbar
+&lt;span className="text-white-50 small d-none d-md-inline me-2"&gt;
+  &lt;i className="bi bi-person-circle me-1"&gt;&lt;/i&gt;{usuario.nombres} · {usuario.rol}
+&lt;/span&gt;
+{esAdministrador &amp;&amp; (
+  &lt;Link to="/espacios" className="btn btn-outline-light btn-sm"&gt;
+    &lt;i className="bi bi-door-open me-1"&gt;&lt;/i&gt;Espacios
+  &lt;/Link&gt;
+)}
+&lt;button type="button" onClick={salir} className="btn btn-light btn-sm"&gt;
+  &lt;i className="bi bi-box-arrow-right me-1"&gt;&lt;/i&gt;Salir
+&lt;/button&gt;
+
+// haz lo mismo con el boton "Registrar espacio" de la portada
+// y con la tarjeta "Registrar espacio": envuelvelos en {esAdministrador &amp;&amp; ( ... )}</code></pre>
+        <div class="prueba"><b>Prueba</b><p>Como <code>USUARIO</code> ves tu nombre y rol, pero no ves «Espacios» ni «Registrar espacio». Como <code>ADMINISTRADOR</code> sí los ves. «Salir» te lleva a <code>/login</code>, y si después escribes <code>/home</code>, no entras.</p></div>
+      </div></div>
+    </section>
+
+    <section id="backend">
+      <h2>La seguridad real vive en el backend</h2>
+      <p>Todo lo que hicimos corre en el navegador del usuario. Cualquiera puede abrir las DevTools, editar <code>localStorage</code> y cambiar su rol a <code>ADMINISTRADOR</code>. El menú le mostraría el botón y la guardia lo dejaría pasar.</p>
+      <div class="nota peligro"><b>Pruébalo en clase</b><p>DevTools → Application → Local Storage → <code>sesionPaseoApp</code>. Cambia <code>"rol":"USUARIO"</code> por <code>"rol":"ADMINISTRADOR"</code> y recarga. Ahora entras a <code>/espacios</code>.</p></div>
+      <p>Por eso el API también debe validar: quién eres (autenticación) y si puedes hacer esa acción (autorización). Los pasos que siguen en <code>paseoGlobant</code>:</p>
+      <ol>
+        <li>Un endpoint de login que compare la contraseña y devuelva el usuario, idealmente con un token (JWT).</li>
+        <li>Que <code>POST /espacios</code> rechace con <code>403</code> a quien no sea administrador.</li>
+        <li>Guardar la contraseña cifrada (por ejemplo con BCrypt), nunca en texto plano.</li>
+      </ol>
+      <h3>Un primer login en Spring</h3>
+      <pre class="codigo"><code class="language-java">// UsuarioControlador.java
+@PostMapping("/login")
+public ResponseEntity&lt;UsuarioDTO&gt; controlarLogin(@RequestBody Usuario datos) {
+    return ResponseEntity.ok(this.servicio.iniciarSesion(datos.getCorreo(), datos.getContraseña()));
+}
+
+// UsuarioServicioImpl.java
+@Override
+public UsuarioDTO iniciarSesion(String correo, String contraseña) {
+    Usuario usuario = this.repositorioUsuario.findByCorreo(correo)
+            .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo o contraseña incorrectos"));
+
+    if (!usuario.getContraseña().equals(contraseña)) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo o contraseña incorrectos");
+    }
+    return this.mapaUsuario.convertir_modelo_a_dto(usuario);
+}</code></pre>
+      <p>Con eso, en el frontend solo cambia <code>iniciarSesion</code> en <code>servicioAuth.js</code>. Las guardias, el contexto y el menú quedan iguales.</p>
+
+      <div class="nota info"><b>Para ver los mensajes de error del API</b><p>Spring Boot no envía el texto de <code>ResponseStatusException</code> por defecto: <code>message</code> llega vacío. Agrega <code>server.error.include-message=always</code> en <code>application.properties</code> y el frontend mostrará «Ya existe un usuario con el correo ingresado».</p></div>
+    </section>
+
+    <section id="pruebas">
+      <h2>Cierre</h2>
+      <ol class="pruebas">
+        <li>Recarga la página con la sesión abierta: sigues logueado gracias a <code>localStorage</code>.</li>
+        <li>Como <code>USUARIO</code>, edita en DevTools <code>"rol":"USUARIO"</code> por <code>"rol":"ADMINISTRADOR"</code> y recarga. Ahora entras a <code>/espacios</code>.</li>
+        <li>Discute con la clase por qué eso demuestra que el frontend no da seguridad y que el backend debe validar cada petición. Esto conecta con la sección «Seguridad real».</li>
+      </ol>
+      <h3>Reto para los estudiantes</h3>
+      <p>Crear la ruta <code>/usuarios</code> con <code>ListaUsuarios</code>, visible solo para el administrador, y mostrar en el menú un enlace hacia ella solo si <code>esAdministrador</code> es verdadero.</p>
+    </section>
+
+    <footer>Paseo App · frontend en React + Vite, backend <code>paseoGlobant</code> en Spring Boot · guía de clase</footer>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+<script>
+  try { window.hljs && hljs.highlightAll(); } catch (e) {}
+
+  // Simulador: misma logica que RutaPrivada y RutaPorRol
+  const RUTAS = {
+    '/': { tipo: 'publica' },
+    '/login': { tipo: 'login' },
+    '/home': { tipo: 'privada' },
+    '/reservas': { tipo: 'privada' },
+    '/espacios': { tipo: 'rol', roles: ['ADMINISTRADOR'] },
+  };
+  let sesion = 'USUARIO';
+  let ruta = '/espacios';
+
+  function evaluar() {
+    const r = RUTAS[ruta];
+    const traza = [];
+    const logueado = sesion !== 'ninguna';
+    if (r.tipo === 'publica') {
+      traza.push('Ruta pública: no hay guardia');
+      return { ok: true, texto: 'Muestra ' + ruta, traza };
+    }
+    if (r.tipo === 'login') {
+      if (logueado) { traza.push('Login.jsx: ya hay sesión'); return { ok: false, texto: 'Redirige a /home', traza }; }
+      traza.push('Login.jsx: no hay sesión');
+      return { ok: true, texto: 'Muestra /login', traza };
+    }
+    if (!logueado) {
+      traza.push('RutaPrivada: no hay sesión ✗');
+      return { ok: false, texto: 'Redirige a /login', traza };
+    }
+    traza.push('RutaPrivada: hay sesión ✓');
+    if (r.tipo === 'rol') {
+      if (!r.roles.includes(sesion)) {
+        traza.push('RutaPorRol: ' + sesion + ' no está en [' + r.roles.join(', ') + '] ✗');
+        return { ok: false, texto: 'Redirige a /home', traza };
+      }
+      traza.push('RutaPorRol: ' + sesion + ' está en [' + r.roles.join(', ') + '] ✓');
+    }
+    return { ok: true, texto: 'Muestra ' + ruta + ' con <Outlet />', traza };
+  }
+
+  function pintar() {
+    const res = evaluar();
+    const caja = document.getElementById('resultado');
+    caja.className = 'resultado ' + (res.ok ? 'ok' : 'redir');
+    caja.innerHTML = '';
+    const t = document.createElement('strong');
+    t.textContent = res.texto;
+    const ol = document.createElement('ol');
+    ol.className = 'traza';
+    res.traza.forEach(function (linea) { const li = document.createElement('li'); li.textContent = linea; ol.appendChild(li); });
+    caja.appendChild(t);
+    caja.appendChild(ol);
+  }
+
+  function enlazar(idGrupo, alElegir) {
+    const grupo = document.getElementById(idGrupo);
+    grupo.addEventListener('click', function (e) {
+      const b = e.target.closest('button');
+      if (!b) return;
+      grupo.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      alElegir(b.dataset.v);
+      pintar();
+    });
+  }
+  enlazar('op-sesion', function (v) { sesion = v; });
+  enlazar('op-ruta', function (v) { ruta = v; });
+  pintar();
+</script>
+</body>
+</html>

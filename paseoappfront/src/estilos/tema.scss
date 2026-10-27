@@ -1,0 +1,583 @@
+// =====================================================================
+// Tema propio de Paseo sobre Bootstrap 5
+// 1. Sobrescribimos variables de Bootstrap ANTES de importarlo
+// 2. Importamos Bootstrap (ya sale con nuestros colores, fuente y radios)
+// 3. Agregamos los componentes propios de la app
+// =====================================================================
+
+// ---------- 1. Identidad ----------
+$indigo-noche: #2b3a67;
+$indigo-profundo: #1b2340;
+$coral: #ff7a59;
+$coral-oscuro: #e8613f;
+$arena: #f7f5f0;
+$arena-borde: #e7e2d8;
+$tinta: #1f2433;
+
+$primary: $indigo-noche;
+$secondary: #6b7080;
+$success: #2e9e6b;
+$danger: #d64545;
+$warning: #f2b33d;
+$info: #3a86c8;
+$light: #efece5;
+$dark: $indigo-profundo;
+
+$body-bg: $arena;
+$body-color: $tinta;
+$text-muted: #6b7080;
+$secondary-color: #6b7080;
+$link-color: $indigo-noche;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$font-family-sans-serif: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$headings-font-weight: 700;
+$headings-color: $tinta;
+
+$border-color: $arena-borde;
+$border-radius: .75rem;
+$border-radius-sm: .5rem;
+$border-radius-lg: 1rem;
+$border-radius-xl: 1.25rem;
+$border-radius-pill: 50rem;
+
+$box-shadow-sm: 0 1px 2px rgba(27, 35, 64, .05), 0 1px 3px rgba(27, 35, 64, .06);
+$box-shadow: 0 10px 30px rgba(27, 35, 64, .08);
+
+$btn-font-weight: 600;
+$btn-padding-x: 1.1rem;
+$btn-padding-y: .55rem;
+$btn-padding-x-lg: 1.4rem;
+$btn-padding-y-lg: .8rem;
+$btn-font-size-lg: 1rem;
+
+$input-bg: #fff;
+$input-border-color: $arena-borde;
+$input-padding-y: .6rem;
+$input-padding-x: .9rem;
+$input-focus-border-color: rgba($indigo-noche, .55);
+$input-btn-focus-color: rgba($indigo-noche, .15);
+$form-label-font-weight: 600;
+$form-label-font-size: .9rem;
+
+$card-border-color: rgba(27, 35, 64, .06);
+$card-border-radius: $border-radius-lg;
+$card-cap-bg: transparent;
+
+$table-cell-padding-y: .85rem;
+$table-cell-padding-x: 1rem;
+$table-th-font-weight: 600;
+
+$modal-content-border-radius: $border-radius-xl;
+$modal-content-border-width: 0;
+$modal-backdrop-bg: $indigo-profundo;
+$modal-backdrop-opacity: .45;
+
+$alert-border-width: 0;
+$badge-font-weight: 600;
+$badge-padding-y: .4em;
+$badge-padding-x: .7em;
+
+// ---------- 2. Bootstrap ----------
+@import 'bootstrap/scss/bootstrap';
+
+// ---------- 3. Componentes propios ----------
+$ancho-barra-lateral: 264px;
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-acento { color: $coral; }
+
+// Solo la primera letra en mayuscula ("Martes, 27 de octubre"; text-capitalize daria "De Octubre")
+.mayuscula-inicial {
+  display: inline-block;
+  &::first-letter { text-transform: uppercase; }
+}
+
+.btn-acento {
+  @include button-variant($coral, $coral, #fff, $coral-oscuro, $coral-oscuro, #fff);
+}
+
+// Botones cuadrados solo con icono (editar, eliminar, salir...)
+.btn-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: $border-radius-sm;
+  border: 1px solid $arena-borde;
+  background: #fff;
+  color: $tinta;
+  font-size: 1.05rem;
+
+  &:hover { background: $light; color: $indigo-noche; }
+}
+.btn-icono-peligro:hover { background: rgba($danger, .08); color: $danger; border-color: rgba($danger, .3); }
+
+.form-label { color: $tinta; }
+legend.form-label { font-size: $form-label-font-size; }
+
+// ---------- Marca ----------
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -.02em;
+
+  &:hover { color: #fff; text-decoration: none; }
+}
+.marca-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: .7rem;
+  background: $coral;
+  color: #fff;
+  font-size: 1.2rem;
+}
+.marca-icono-sm { width: 2rem; height: 2rem; font-size: 1rem; border-radius: .55rem; }
+
+// ---------- Layout de la app (menu lateral + contenido) ----------
+.app { min-height: 100vh; }
+
+.barra-lateral {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: $ancho-barra-lateral;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 1rem;
+  background: $indigo-profundo;
+  color: rgba(#fff, .75);
+  z-index: $zindex-offcanvas;
+  transition: transform .25s ease;
+
+  // En movil el menu se esconde a la izquierda
+  @include media-breakpoint-down(lg) {
+    transform: translateX(-100%);
+    &.abierta { transform: translateX(0); box-shadow: $box-shadow; }
+  }
+}
+
+.menu { flex-grow: 1; overflow-y: auto; }
+.grupo-menu + .grupo-menu { margin-top: 1.5rem; }
+.titulo-grupo-menu {
+  margin: 0 .75rem .5rem;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(#fff, .4);
+}
+.enlace-menu {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .65rem .75rem;
+  border-radius: $border-radius-sm;
+  color: rgba(#fff, .75);
+  font-weight: 500;
+  text-decoration: none;
+
+  i { font-size: 1.1rem; }
+  &:hover { color: #fff; background: rgba(#fff, .06); text-decoration: none; }
+  &.activo { color: #fff; background: rgba(#fff, .1); box-shadow: inset 3px 0 0 $coral; }
+}
+
+.usuario-lateral {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .75rem;
+  border-radius: $border-radius;
+  background: rgba(#fff, .06);
+  color: #fff;
+
+  .btn-icono { background: transparent; border-color: rgba(#fff, .15); color: rgba(#fff, .8); }
+  .btn-icono:hover { background: rgba(#fff, .1); color: #fff; }
+}
+
+.fondo-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba($indigo-profundo, .45);
+  z-index: $zindex-offcanvas-backdrop;
+}
+
+.app-contenido {
+  @include media-breakpoint-up(lg) { margin-left: $ancho-barra-lateral; }
+}
+
+.barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: $zindex-sticky;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  background: $indigo-profundo;
+
+  .btn-icono { background: transparent; border-color: rgba(#fff, .15); color: #fff; }
+}
+
+.app-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+
+  @include media-breakpoint-up(md) { padding: 2.5rem 2.5rem 4rem; }
+}
+
+.encabezado-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.enlace-volver {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: $text-muted;
+  font-weight: 500;
+
+  &:hover { color: $indigo-noche; text-decoration: none; }
+}
+
+// ---------- Avatar e insignia de rol ----------
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba($coral, .15);
+  color: $coral-oscuro;
+  font-weight: 700;
+  font-size: .9rem;
+}
+.avatar-sm { width: 2rem; height: 2rem; font-size: .75rem; }
+
+.insignia-rol {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .2rem .6rem;
+  border-radius: $border-radius-pill;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.insignia-rol-administrador { background: rgba($coral, .15); color: $coral-oscuro; }
+.insignia-rol-usuario { background: rgba($info, .12); color: darken($info, 10%); }
+.usuario-lateral .insignia-rol { padding: .15rem .5rem; font-size: .7rem; }
+.usuario-lateral .insignia-rol-usuario { background: rgba(#fff, .12); color: #fff; }
+
+// ---------- Inicio ----------
+.bienvenida {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: $border-radius-xl;
+  color: #fff;
+  background:
+    radial-gradient(circle at 90% 10%, rgba($coral, .35), transparent 45%),
+    linear-gradient(135deg, $indigo-noche, $indigo-profundo);
+
+  h1 { color: #fff; }
+  @include media-breakpoint-up(md) { padding: 2.5rem; }
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  height: 100%;
+  padding: 1.25rem;
+  border-radius: $border-radius-lg;
+  background: #fff;
+  border: 1px solid $card-border-color;
+  box-shadow: $box-shadow-sm;
+  color: $tinta;
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+
+  &:hover { transform: translateY(-3px); box-shadow: $box-shadow; text-decoration: none; color: $tinta; }
+}
+.kpi-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: .5rem;
+  border-radius: $border-radius-sm;
+  background: rgba($indigo-noche, .08);
+  color: $indigo-noche;
+  font-size: 1.15rem;
+}
+.kpi-valor { font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+.kpi-titulo { color: $text-muted; font-size: .875rem; font-weight: 500; }
+
+// ---------- Tarjeta de espacio ----------
+.tarjeta-espacio {
+  overflow: hidden;
+  box-shadow: $box-shadow-sm;
+  transition: transform .25s, box-shadow .25s;
+
+  &:hover { transform: translateY(-4px); box-shadow: $box-shadow; }
+}
+.tarjeta-espacio-foto {
+  position: relative;
+  flex-shrink: 0;
+  aspect-ratio: 16 / 10;
+  background: $light;
+
+  // absolutas: asi el tamaño real de la foto no deforma la proporcion 16:10
+  img, .foto-vacia { position: absolute; inset: 0; width: 100%; height: 100%; }
+  img { object-fit: cover; }
+}
+.tarjeta-espacio-aforo {
+  position: absolute;
+  left: .75rem;
+  bottom: .75rem;
+  padding: .3rem .65rem;
+  border-radius: $border-radius-pill;
+  background: rgba($indigo-profundo, .75);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.foto-vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: $text-muted;
+  font-size: 2.5rem;
+}
+
+.buscador {
+  position: relative;
+  min-width: 240px;
+
+  i { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: $text-muted; }
+  .form-control { padding-left: 2.4rem; }
+}
+
+// ---------- Reservas ----------
+.grilla-franjas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: .6rem;
+}
+.chip-franja {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .1rem;
+  padding: .65rem .8rem;
+  border-radius: $border-radius-sm;
+  border: 1.5px solid $arena-borde;
+  background: #fff;
+  color: $tinta;
+  font-size: .875rem;
+  text-align: left;
+  transition: border-color .15s, background .15s;
+
+  small { font-size: .72rem; color: $text-muted; }
+}
+.chip-franja-libre:hover { border-color: $indigo-noche; }
+.chip-franja-seleccionada {
+  border-color: $indigo-noche;
+  background: $indigo-noche;
+  color: #fff;
+
+  small { color: rgba(#fff, .75); }
+}
+.chip-franja-ocupada {
+  background: repeating-linear-gradient(-45deg, $light, $light 6px, #fff 6px, #fff 12px);
+  color: $text-muted;
+  cursor: not-allowed;
+
+  small { color: $danger; }
+}
+.chip-franja-pasada { opacity: .45; cursor: not-allowed; }
+
+.resumen-reserva {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: $border-radius;
+  background: $arena;
+}
+
+.lista-reservas { display: flex; flex-direction: column; gap: .75rem; }
+.fila-reserva {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .9rem 1rem;
+  border-radius: $border-radius;
+  background: #fff;
+  border: 1px solid $card-border-color;
+  box-shadow: $box-shadow-sm;
+}
+.fila-reserva-pasada { opacity: .65; box-shadow: none; }
+.fila-reserva-foto {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+  border-radius: $border-radius-sm;
+  object-fit: cover;
+}
+.fila-reserva-fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: $border-radius-sm;
+  background: rgba($coral, .12);
+  color: $coral-oscuro;
+  line-height: 1.1;
+
+  span { font-size: 1.25rem; font-weight: 800; }
+  small { font-size: .7rem; font-weight: 600; text-transform: uppercase; }
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+
+  .form-select, .form-control { width: auto; min-width: 200px; }
+}
+
+// ---------- Tablas ----------
+.tabla-tarjeta {
+  overflow: hidden;
+  box-shadow: $box-shadow-sm;
+
+  .table { --bs-table-bg: transparent; }
+  thead th {
+    background: $arena;
+    color: $text-muted;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 0;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+}
+
+// ---------- Estados (cargando / vacio) ----------
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+.estado-pantalla { min-height: 100vh; }
+.estado-vacio {
+  border: 1.5px dashed $arena-borde;
+  border-radius: $border-radius-lg;
+  background: rgba(#fff, .5);
+}
+.icono-circulo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: rgba($indigo-noche, .08);
+  color: $indigo-noche;
+  font-size: 1.5rem;
+}
+.icono-circulo-peligro { background: rgba($danger, .1); color: $danger; }
+
+// ---------- Login y registro ----------
+.panel-formulario {
+  display: flex;
+  min-height: 100vh;
+}
+.panel-imagen {
+  position: relative;
+  flex: 1 1 50%;
+  align-items: flex-end;
+  padding: 3.5rem;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba($indigo-profundo, .15) 0%, rgba($indigo-profundo, .9) 100%);
+  }
+  h1 { color: #fff; }
+}
+.panel-imagen-texto { position: relative; max-width: 480px; }
+.panel-lado-formulario {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  background: #fff;
+
+  @include media-breakpoint-up(md) { padding: 3rem; }
+}
+
+.selector-rol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+.opcion-rol {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: .9rem 1rem;
+  border: 1.5px solid $arena-borde;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+  i { font-size: 1.25rem; color: $indigo-noche; margin-bottom: .25rem; }
+  small { font-size: .78rem; }
+  &:hover { border-color: rgba($indigo-noche, .4); }
+  &.activa { border-color: $indigo-noche; background: rgba($indigo-noche, .04); }
+  &:has(input:focus-visible) { box-shadow: 0 0 0 .25rem $input-btn-focus-color; }
+}
