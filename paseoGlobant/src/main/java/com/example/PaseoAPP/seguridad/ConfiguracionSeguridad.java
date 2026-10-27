@@ -43,12 +43,10 @@ public class ConfiguracionSeguridad {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                //la consola H2 se pinta en un iframe
-                .headers(cabeceras -> cabeceras.frameOptions(marco -> marco.sameOrigin()))
                 .authorizeHttpRequests(reglas -> reglas
                         .requestMatchers(HttpMethod.POST, "/paseoapi/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/paseoapi/v1/usuarios").permitAll()
-                        .requestMatchers("/error", "/h2-console/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         //lo que depende del rol se controla con @PreAuthorize en cada controlador
                         .anyRequest().authenticated()
                 )

@@ -7,8 +7,6 @@ import { mensajeDeError } from '../services/clienteApi.js'
 import { PanelFormulario } from '../componentes/PanelFormulario'
 import { AlertaError } from '../componentes/Estados.jsx'
 
-const IMAGEN = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1400&q=80'
-
 export function Login() {
   const { iniciarSesion } = useAuth()
 
@@ -36,25 +34,18 @@ export function Login() {
   }
 
   return (
-    <PanelFormulario
-      imagen={IMAGEN}
-      titulo="Las zonas comunes de tu conjunto, a un clic"
-      subtitulo="Reserva el salón social, el gimnasio o la piscina sin llamadas ni filas en portería."
-    >
-      <h2 className="fw-bold mb-1">Bienvenido de nuevo</h2>
-      <p className="text-muted mb-4">Ingresa con tu correo para continuar.</p>
-
+    <PanelFormulario modo="login" mensaje="Reserva las zonas comunes de tu conjunto y organiza tus horarios en línea">
       <AlertaError mensaje={error} />
 
       <form onSubmit={manejarEnvio}>
-        <div className="mb-3">
-          <label htmlFor="correo" className="form-label">Correo</label>
+        <div className="campo-linea">
+          <label htmlFor="correo">Correo</label>
           <input
             id="correo"
             type="email"
             name="correo"
-            placeholder="correo@ejemplo.com"
-            className="form-control form-control-lg"
+            placeholder="Escribe tu correo"
+            className="campo-input"
             value={datos.correo}
             onChange={manejarCambio}
             autoComplete="email"
@@ -62,13 +53,14 @@ export function Login() {
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="contraseña" className="form-label">Contraseña</label>
+        <div className="campo-linea">
+          <label htmlFor="contraseña">Contraseña</label>
           <input
             id="contraseña"
             type="password"
             name="contraseña"
-            className="form-control form-control-lg"
+            placeholder="Escribe tu contraseña"
+            className="campo-input"
             value={datos.contraseña}
             onChange={manejarCambio}
             autoComplete="current-password"
@@ -76,14 +68,13 @@ export function Login() {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary btn-lg w-100" disabled={enviando}>
-          {enviando ? 'Ingresando...' : 'Ingresar'}
-        </button>
+        <div className="acciones-auth mt-4">
+          <button type="submit" className="btn btn-auth" disabled={enviando}>
+            {enviando ? 'Ingresando...' : 'Ingresar'}
+          </button>
+          <Link to="/registro" className="enlace-auth">No tengo cuenta</Link>
+        </div>
       </form>
-
-      <p className="text-center text-muted mt-4 mb-0">
-        ¿No tienes cuenta? <Link to="/registro" className="fw-semibold">Regístrate</Link>
-      </p>
     </PanelFormulario>
   )
 }

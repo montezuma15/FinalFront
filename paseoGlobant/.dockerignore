@@ -1,0 +1,15 @@
+# Solo se necesitan pom.xml y src/ para construir la imagen.
+# Todo lo demas se excluye para que el contexto de build sea pequeño.
+target/
+bin/
+.mvn/
+mvnw
+mvnw.cmd
+*.db
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+*.iml
+HELP.md

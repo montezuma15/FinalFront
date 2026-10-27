@@ -1,0 +1,10 @@
+# node_modules se instala dentro de la imagen (npm ci) para el sistema Linux del contenedor;
+# copiar el de Windows romperia los binarios nativos (rolldown, sass...)
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.vscode/
+.idea/
+docs/

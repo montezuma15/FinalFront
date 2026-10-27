@@ -1,0 +1,68 @@
+# =====================================================================
+# Paseo App: base de datos + backend + frontend
+#   podman compose up -d --build      (ver DOCKER.md)
+#
+# Las variables ${...} se leen del archivo .env junto a este compose
+# (copiar .env.example a .env). Si no existe, se usan los valores tras ":-".
+# =====================================================================
+name: paseoapp
+
+services:
+
+  # ---------- PostgreSQL ----------
+  db:
+    image: docker.io/library/postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paseo}
+      POSTGRES_USER: ${POSTGRES_USER:-paseo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paseo}
+    volumes:
+      # Volumen con nombre: los datos sobreviven a "down" y a reconstruir imagenes
+      - datos-postgres:/var/lib/postgresql/data
+    ports:
+      # Expuesto para conectarse desde pgAdmin/DBeaver o correr el backend en local
+      - "${POSTGRES_PUERTO:-5432}:5432"
+    healthcheck:
+      # $$ = "$" literal: la variable la resuelve el contenedor, no el compose
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------- Backend Spring Boot ----------
+  backend:
+    build:
+      context: ./paseoGlobant
+    image: localhost/paseoapp-backend:latest
+    environment:
+      # Spring convierte SPRING_DATASOURCE_URL en spring.datasource.url, etc.
+      # "db" es el nombre del servicio de arriba: la red del compose lo resuelve
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-paseo}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-paseo}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-paseo}
+      PASEO_JWT_SECRETO: ${PASEO_JWT_SECRETO:-cambia-este-secreto-de-desarrollo-paseoapp-2026}
+    depends_on:
+      db:
+        # Espera a que PostgreSQL acepte conexiones, no solo a que el contenedor arranque
+        condition: service_healthy
+    ports:
+      # Expuesto para probar el API directo (Postman); el navegador entra por el frontend
+      - "${BACKEND_PUERTO:-8080}:8080"
+    restart: unless-stopped
+
+  # ---------- Frontend React servido por Nginx ----------
+  frontend:
+    build:
+      context: ./paseoappfront
+      args:
+        VITE_API_URL: /paseoapi/v1
+    image: localhost/paseoapp-frontend:latest
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PUERTO:-8081}:80"
+    restart: unless-stopped
+
+volumes:
+  datos-postgres:

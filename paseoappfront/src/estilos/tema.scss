@@ -526,58 +526,203 @@ legend.form-label { font-size: $form-label-font-size; }
 .icono-circulo-peligro { background: rgba($danger, .1); color: $danger; }
 
 // ---------- Login y registro ----------
-.panel-formulario {
-  display: flex;
-  min-height: 100vh;
-}
-.panel-imagen {
-  position: relative;
-  flex: 1 1 50%;
-  align-items: flex-end;
-  padding: 3.5rem;
-  background-size: cover;
-  background-position: center;
-  color: #fff;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba($indigo-profundo, .15) 0%, rgba($indigo-profundo, .9) 100%);
-  }
-  h1 { color: #fff; }
-}
-.panel-imagen-texto { position: relative; max-width: 480px; }
-.panel-lado-formulario {
-  flex: 1 1 50%;
+// Tarjeta dividida: ilustracion en coral a la izquierda, formulario en indigo a la derecha
+.pantalla-auth {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem 1rem;
-  background: #fff;
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  background:
+    radial-gradient(circle at 15% 20%, rgba($coral, .18), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba($indigo-noche, .14), transparent 45%),
+    $arena;
+}
+.tarjeta-auth {
+  display: flex;
+  width: 100%;
+  max-width: 980px;
+  border-radius: $border-radius-xl;
 
-  @include media-breakpoint-up(md) { padding: 3rem; }
+  @include media-breakpoint-up(lg) { min-height: 600px; }
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba($indigo-profundo, .25);
 }
 
+.auth-ilustracion {
+  position: relative;
+  flex: 1 1 50%;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 2.5rem;
+  background: linear-gradient(160deg, lighten($coral, 4%), $coral-oscuro);
+  color: #fff;
+}
+.auth-logo {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1.5px solid rgba(#fff, .8);
+  border-radius: .7rem;
+  font-size: 1.2rem;
+}
+.auth-mensaje {
+  max-width: 340px;
+  margin: 3rem 0 2rem;
+  font-size: 1.35rem;
+  font-weight: 300;
+  line-height: 1.4;
+  text-align: center;
+}
+.auth-dibujo { width: 100%; max-width: 300px; }
+.auth-puntos {
+  display: flex;
+  gap: .5rem;
+  margin-top: auto;
+
+  span { width: .4rem; height: .4rem; border-radius: 50%; background: rgba(#fff, .45); }
+  .activo { outline: 1.5px solid #fff; outline-offset: 2px; background: #fff; }
+}
+
+.auth-formulario {
+  position: relative;
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: $indigo-profundo;
+  color: #fff;
+
+  @include media-breakpoint-up(md) { padding: 2rem 3.5rem; }
+}
+
+// Interruptor en forma de pastilla (arriba a la derecha)
+.conmutador-auth {
+  align-self: flex-end;
+  display: inline-flex;
+  padding: .2rem;
+  border-radius: $border-radius-pill;
+  background: rgba(#fff, .08);
+
+  a {
+    padding: .3rem .9rem;
+    border-radius: $border-radius-pill;
+    color: rgba(#fff, .6);
+    font-size: .75rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  a.activo { background: $coral; color: #fff; box-shadow: 0 4px 12px rgba($coral, .4); }
+}
+
+.auth-contenido {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 1.5rem 0 1rem;
+
+  @include media-breakpoint-up(lg) { margin: auto; padding: 2rem 0; }
+}
+
+// Titulo del formulario (la navegacion queda solo en el interruptor de arriba)
+.titulo-auth {
+  display: inline-block;
+  margin-bottom: 2rem;
+  padding-bottom: .2rem;
+  border-bottom: 2px solid $coral;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+// Campos con solo la linea inferior
+.campo-linea {
+  margin-bottom: 1.6rem;
+
+  > label, > legend {
+    display: block;
+    margin-bottom: .2rem;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(#fff, .85);
+  }
+  .invalid-feedback { color: lighten($danger, 18%); }
+}
+.campo-input {
+  display: block;
+  width: 100%;
+  padding: .45rem 0;
+  border: 0;
+  border-bottom: 1.5px solid rgba(#fff, .15);
+  background: transparent;
+  color: #fff;
+  font-size: .95rem;
+  transition: border-color .15s;
+
+  &::placeholder { color: rgba(#fff, .3); }
+  &:focus { outline: 0; border-bottom-color: $coral; }
+  &.is-invalid { border-bottom-color: lighten($danger, 10%); }
+}
+
+.check-auth {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .8rem;
+  color: rgba(#fff, .6);
+  cursor: pointer;
+
+  input { width: 1rem; height: 1rem; accent-color: $coral; cursor: pointer; }
+  .terminos { color: #fff; border-bottom: 1px solid $coral; }
+}
+
+.acciones-auth {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+.btn-auth {
+  @include button-variant($coral, $coral, #fff, $coral-oscuro, $coral-oscuro, #fff);
+  padding: .6rem 2.4rem;
+  border-radius: $border-radius-pill;
+  box-shadow: 0 8px 20px rgba($coral, .35);
+}
+.enlace-auth {
+  color: rgba(#fff, .5);
+  font-size: .8rem;
+  border-bottom: 1px solid rgba(#fff, .2);
+
+  &:hover { color: #fff; text-decoration: none; }
+}
+
+.pantalla-auth .alert { font-size: .85rem; }
+
+// Tipo de cuenta en el registro
 .selector-rol {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .75rem;
+  gap: .6rem;
 }
 .opcion-rol {
   display: flex;
-  flex-direction: column;
-  gap: .15rem;
-  padding: .9rem 1rem;
-  border: 1.5px solid $arena-borde;
-  border-radius: $border-radius;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .8rem;
+  border: 1.5px solid rgba(#fff, .15);
+  border-radius: $border-radius-pill;
+  color: rgba(#fff, .6);
+  font-size: .85rem;
   cursor: pointer;
-  transition: border-color .15s, background .15s;
+  transition: border-color .15s, background .15s, color .15s;
 
   input { position: absolute; opacity: 0; pointer-events: none; }
-  i { font-size: 1.25rem; color: $indigo-noche; margin-bottom: .25rem; }
-  small { font-size: .78rem; }
-  &:hover { border-color: rgba($indigo-noche, .4); }
-  &.activa { border-color: $indigo-noche; background: rgba($indigo-noche, .04); }
-  &:has(input:focus-visible) { box-shadow: 0 0 0 .25rem $input-btn-focus-color; }
+  &:hover { border-color: rgba(#fff, .35); }
+  &.activa { border-color: $coral; background: rgba($coral, .12); color: #fff; }
+  &:has(input:focus-visible) { box-shadow: 0 0 0 .2rem rgba($coral, .35); }
 }

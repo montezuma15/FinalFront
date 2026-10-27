@@ -1,0 +1,4 @@
+# Variables reales del compose (contraseñas, secretos): no se suben a git
+.env
+.bin
+.docker

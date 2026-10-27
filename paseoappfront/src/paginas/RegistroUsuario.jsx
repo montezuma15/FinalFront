@@ -8,8 +8,6 @@ import { ROLES } from '../auth/permisos.js'
 import { PanelFormulario } from '../componentes/PanelFormulario'
 import { AlertaError } from '../componentes/Estados.jsx'
 
-const IMAGEN = 'https://images.unsplash.com/photo-1460317442991-0ec209397118?w=1400&q=80'
-
 export function RegistroUsuario() {
   const { registrarse } = useAuth()
 
@@ -19,6 +17,8 @@ export function RegistroUsuario() {
     contraseña: '',
     rol: ROLES.USUARIO,
   })
+  // Solo se valida en el front: el backend no guarda la aceptacion de terminos
+  const [aceptaTerminos, setAceptaTerminos] = useState(false)
   const [errores, setErrores] = useState({})
   const [errorApi, setErrorApi] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -41,6 +41,9 @@ export function RegistroUsuario() {
     }
     if (usuario.rol === '') {
       nuevosErrores.rol = 'Seleccione un rol'
+    }
+    if (!aceptaTerminos) {
+      nuevosErrores.terminos = 'Debes aceptar los términos del servicio'
     }
     return nuevosErrores
   }
@@ -72,69 +75,65 @@ export function RegistroUsuario() {
   }
 
   function clasesCampo(nombre) {
-    return `form-control ${errores[nombre] ? 'is-invalid' : ''}`
+    return `campo-input ${errores[nombre] ? 'is-invalid' : ''}`
   }
 
   return (
-    <PanelFormulario
-      imagen={IMAGEN}
-      titulo="Tu unidad residencial, en un solo lugar"
-      subtitulo="Crea tu cuenta y empieza a reservar las zonas comunes de tu conjunto."
-    >
-      <h2 className="fw-bold mb-1">Crear cuenta</h2>
-      <p className="text-muted mb-4">Solo toma un minuto.</p>
-
+    <PanelFormulario modo="registro" mensaje="Crea tu cuenta y aparta el salón, el gimnasio o la piscina sin filas">
       <AlertaError mensaje={errorApi} />
 
       <form onSubmit={manejarEnvio} noValidate>
-        <div className="mb-3">
-          <label htmlFor="nombres" className="form-label">Nombres</label>
-          <input id="nombres" type="text" name="nombres" placeholder="Juan Pérez"
+        <div className="campo-linea">
+          <label htmlFor="nombres">Nombres</label>
+          <input id="nombres" type="text" name="nombres" placeholder="Escribe tu nombre completo"
             className={clasesCampo('nombres')} value={usuario.nombres} onChange={manejarCambio} />
           <div className="invalid-feedback">{errores.nombres}</div>
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="correo" className="form-label">Correo</label>
-          <input id="correo" type="email" name="correo" placeholder="correo@ejemplo.com" autoComplete="email"
+        <div className="campo-linea">
+          <label htmlFor="correo">Correo</label>
+          <input id="correo" type="email" name="correo" placeholder="Escribe tu correo" autoComplete="email"
             className={clasesCampo('correo')} value={usuario.correo} onChange={manejarCambio} />
           <div className="invalid-feedback">{errores.correo}</div>
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="contraseña" className="form-label">Contraseña</label>
+        <div className="campo-linea">
+          <label htmlFor="contraseña">Contraseña</label>
           <input id="contraseña" type="password" name="contraseña" placeholder="Mínimo 6 caracteres" autoComplete="new-password"
             className={clasesCampo('contraseña')} value={usuario.contraseña} onChange={manejarCambio} />
           <div className="invalid-feedback">{errores.contraseña}</div>
         </div>
 
-        <fieldset className="mb-4">
-          <legend className="form-label">Tipo de cuenta</legend>
+        <fieldset className="campo-linea">
+          <legend>Tipo de cuenta</legend>
           <div className="selector-rol">
             <label className={`opcion-rol ${usuario.rol === ROLES.USUARIO ? 'activa' : ''}`}>
               <input type="radio" name="rol" value={ROLES.USUARIO} checked={usuario.rol === ROLES.USUARIO} onChange={manejarCambio} />
-              <i className="bi bi-person"></i>
-              <span className="fw-semibold">Residente</span>
-              <small className="text-muted">Reserva espacios</small>
+              <i className="bi bi-person"></i>Residente
             </label>
             <label className={`opcion-rol ${usuario.rol === ROLES.ADMINISTRADOR ? 'activa' : ''}`}>
               <input type="radio" name="rol" value={ROLES.ADMINISTRADOR} checked={usuario.rol === ROLES.ADMINISTRADOR} onChange={manejarCambio} />
-              <i className="bi bi-shield-lock"></i>
-              <span className="fw-semibold">Administrador</span>
-              <small className="text-muted">Gestiona el conjunto</small>
+              <i className="bi bi-shield-lock"></i>Administrador
             </label>
           </div>
-          {errores.rol && <div className="text-danger small mt-1">{errores.rol}</div>}
+          {errores.rol && <div className="invalid-feedback d-block">{errores.rol}</div>}
         </fieldset>
 
-        <button type="submit" className="btn btn-primary btn-lg w-100" disabled={enviando}>
-          {enviando ? 'Creando cuenta...' : 'Crear cuenta'}
-        </button>
-      </form>
+        <div className="mb-4">
+          <label className="check-auth">
+            <input type="checkbox" checked={aceptaTerminos} onChange={(evento) => setAceptaTerminos(evento.target.checked)} />
+            <span>Acepto todas las condiciones de los <span className="terminos">términos del servicio</span></span>
+          </label>
+          {errores.terminos && <div className="invalid-feedback d-block">{errores.terminos}</div>}
+        </div>
 
-      <p className="text-center text-muted mt-4 mb-0">
-        ¿Ya tienes cuenta? <Link to="/login" className="fw-semibold">Inicia sesión</Link>
-      </p>
+        <div className="acciones-auth">
+          <button type="submit" className="btn btn-auth" disabled={enviando}>
+            {enviando ? 'Creando cuenta...' : 'Registrarse'}
+          </button>
+          <Link to="/login" className="enlace-auth">Ya tengo cuenta</Link>
+        </div>
+      </form>
     </PanelFormulario>
   )
 }

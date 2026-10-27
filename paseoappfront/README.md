@@ -5,8 +5,11 @@ React 19 + Vite + Bootstrap 5 con tema propio (Sass). Consume el API de `paseoGl
 
 ## Cómo correrlo
 
-1. Levantar el backend (`paseoGlobant`): `./mvnw spring-boot:run` → `http://localhost:8080`
-2. En esta carpeta:
+Todo en contenedores: ver [DOCKER.md](../DOCKER.md). Para desarrollar en local:
+
+1. Base de datos: `podman compose up -d db` (desde la raíz del repo)
+2. Backend (`paseoGlobant`): `./mvnw spring-boot:run` → `http://localhost:8080`
+3. En esta carpeta:
 
 ```bash
 npm install

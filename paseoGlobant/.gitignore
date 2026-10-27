@@ -34,3 +34,5 @@ build/
 
 ### H2 (base de datos local) ###
 bd_paseo*.db
+
+.bin
